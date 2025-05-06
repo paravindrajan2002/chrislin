@@ -1,0 +1,55 @@
+pipeline {
+    agent any
+
+    triggers {
+        gerrit(
+            serverName: 'Gerrit',       
+            gerritProjects: [[
+                compareType: 'PLAIN',
+                pattern: '100555/TE_aravaindtest',   
+                branches: [[
+                    compareType: 'PLAIN',
+                    pattern: 'refs/*'
+                ]]
+            ]]
+        )
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                git credentialsId: 'gerrit-ssh-key', 
+                    url: 'git clone "ssh://41709@testgerrit.tataelxsi.co.in:29418/100555/TE_aravaindtest"', 
+                    branch: 'main'
+            }
+        }
+
+        stage('Build') {
+            steps {
+                echo 'Building the project...'
+                // Add build commands here
+            }
+        }
+
+        stage('Test') {
+            steps {
+                echo 'Running tests...'
+                // Add test commands here
+            }
+        }
+
+        stage('Archive') {
+            steps {
+                echo 'Archiving artifacts...'
+                // archiveArtifacts artifacts: '**/target/*.jar', fingerprint: true
+            }
+        }
+    }
+
+    post {
+        always {
+            echo 'Cleaning up...'
+            cleanWs()
+        }
+    }
+}
